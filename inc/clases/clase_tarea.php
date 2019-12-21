@@ -57,7 +57,7 @@ define ("db_user", "root");
 define ("db_pass", "root");
 define ("db_ddbb", "tareas");
 
-class bbdd{
+class base{
 	
 	//establecemos la variable interna privada mysqli
 	//solo desde los métodos de la clase se puede usar
@@ -92,7 +92,7 @@ class bbdd{
 		$this->last_insert_id = $this->mysqli->insert_id;
 	}
 }
-class tarea extends bbdd{
+class tarea extends base{
 	
 	public function crear($nombre, $descripcion, $id_madre){
 		$sql = "INSERT INTO "._tabla_tareas." SET nombre='$nombre', descripcion='$descripcion', id_madre='$id_madre'";
