@@ -92,7 +92,30 @@ class base{
 		$this->last_insert_id = $this->mysqli->insert_id;
 	}
 }
+
+class plantilla{
+	var $contenido;
+	var $mensajes;
+	var $error;
+	function __construct($contenido="", $es_fichero=false){
+		if($es_fichero){
+			//Para hacer falta comprobar que el fichero exista
+			// y alimentar los mensajes y el codigo o mensaje de error			
+			$this->contenido=file_get_contents($contenido);
+		}else{
+			$this->contenido=$contenido;
+		}
+	}
+
+	public function reemplaza($que_busco, $que_pongo){
+		$this->contenido = str_replace($que_busco, $que_pongo, $this->contenido);
+	}
+
+}
+
 class tarea extends base{
+
+	var $plantilla;
 	
 	public function crear($nombre, $descripcion, $id_madre){
 		$sql = "INSERT INTO "._tabla_tareas." SET nombre='$nombre', descripcion='$descripcion', id_madre='$id_madre'";
