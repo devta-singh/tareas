@@ -64,12 +64,12 @@ class bbdd{
 	private $mysqli=null;
 	private $num_filas=0;
 	private $filas_afectadas=0;
-	private $last_insert_id;
+	private $last_insert_id=0;
 	private $error="";
 	private $errno=0;
 	private $resultados=null;
 
-	function __construct ($server=db_server, $user=db_user, $pass=db_pass, $ddbb=db_bbdd){
+	function __construct ($server=db_server, $user=db_user, $pass=db_pass, $ddbb=db_ddbb){
 		if($this->mysqli = new Mysqli($server, $user, $pass, $ddbb)){
 			return($this->mysqli);
 		}else{
@@ -78,12 +78,18 @@ class bbdd{
 	}
 
 	public function consulta($sql){
-		$resultados = $this->mysqli->query($sql);
-		$this->error = $this->mysqli->error;
-		$this->errno = $this->mysqli->errno;
-		$this->num_filas = $this->resultados->num_rows;
+		if($this->resultados = $this->mysqli->query($sql)){
+			$this->num_filas = $this->resultados->num_rows;
+			return($this->resultados);
+		}else{
+			$this->error = $this->mysqli->error;
+			$this->errno = $this->mysqli->errno;
+			$this->num_filas = 0;
+			return(false);
+		}
+		
 		$this->filas_afectadas = $this->mysqli->affected_rows;
-		$this->last_insert_id = $this->mysqli->last_insert_id;
+		$this->last_insert_id = $this->mysqli->insert_id;
 	}
 }
 class tarea extends bbdd{
@@ -123,15 +129,28 @@ class tarea extends bbdd{
 	public function listar($id_madre=0){
 		$sql = "SELECT * FROM _tareas ";
 		$resultados = $this->consulta($sql);
-		
+
+		while($datos = $resultados->fetch_assoc()){
+			$id_tarea = $datos["id_tarea"];
+			$id_madre = $datos["id_madre"];
+			$nombre = $datos["nombre"];
+			$descripcion = $datos["descripcion"];
+
+			print <<<fin
+				<br><a href="tarea_ver.php?id='$id_tarea'" title="$descripcion">$nombre</a>
+fin;
+
+		}
+
 	}
 
-	public function form(){}
+	public function form(){
+		//lee la plantilla del formulario
+
+
+	}
 }
 
-$mi_tarea = new tarea();
-
-$mi_tarea->listar();
 
 
 ?>
