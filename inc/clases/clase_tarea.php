@@ -100,7 +100,7 @@ class plantilla{
 	function __construct($contenido="", $es_fichero=false){
 		if($es_fichero){
 			//Para hacer falta comprobar que el fichero exista
-			// y alimentar los mensajes y el codigo o mensaje de error			
+			// y alimentar los mensajes y el codigo o mensaje de error
 			$this->contenido=file_get_contents($contenido);
 		}else{
 			$this->contenido=$contenido;
