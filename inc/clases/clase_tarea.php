@@ -68,6 +68,7 @@ class base{
 	private $error="";
 	private $errno=0;
 	private $resultados=null;
+	public $plantillas = array();
 
 	function __construct ($server=db_server, $user=db_user, $pass=db_pass, $ddbb=db_ddbb){
 		if($this->mysqli = new Mysqli($server, $user, $pass, $ddbb)){
@@ -91,7 +92,29 @@ class base{
 		$this->filas_afectadas = $this->mysqli->affected_rows;
 		$this->last_insert_id = $this->mysqli->insert_id;
 	}
-}
+
+	public function recuperar_datos($lista=array(),$origen="REQUEST"){
+		//recorremos las opciones de origen
+		switch($origen){
+
+			default:
+			{
+				//leemos de REQUEST, a saco
+				$datos = array();
+				foreach($_REQUEST as $clave => $valor){
+					if(in_array($clave, $lista)){
+						$datos["$clave"] = $valor;
+					}
+				}
+				return($datos);
+				break;
+			}
+		}//fin switch
+
+		return(FALSE);
+	}//fin function
+
+}//fin clase base
 
 class plantilla{
 	var $contenido;
@@ -111,13 +134,48 @@ class plantilla{
 		$this->contenido = str_replace($que_busco, $que_pongo, $this->contenido);
 	}
 
+	public function volcar(){
+		return($this->contenido);
+	}
 }
 
 class tarea extends base{
 
 	var $plantilla;
+	var $lista_variables_a_cargar = array("id_tarea","nombre","descripcion");
+	var $varios=array();
+	var $A_id_madre=array();
+	var $opciones_id_madre="";
+
+	private function cargar_datos($origen = "post"){
+		$valores = array();
+
+		//$mi_tarea->grabar($datos);
+
+		if($origen=="post"){
+			//ver las variables que llegan por post
+			foreach($_POST as $clave => $valor){
+				print "<br>recuperando de PSOT la variable $clave con valor: $valor";
+				//comprobamos si está en la lista de variables a cargar
+				if(in_array($clave, $lista_variables_a_cargar)){
+					$this->$clave = $valor;
+					$valores["clave"]=$valor;
+				}
+
+			}
+			return($valores);
+		}
+		return(array());
+	}
+
+	public function grabar($datos){
+		foreach($datos as $clave => $valor){
+
+		}
+	}
 	
 	public function crear($nombre, $descripcion, $id_madre){
+
 		$sql = "INSERT INTO "._tabla_tareas." SET nombre='$nombre', descripcion='$descripcion', id_madre='$id_madre'";
 		$this->consulta($sql);
 		if($this->resultados){
@@ -150,27 +208,48 @@ class tarea extends base{
 	public function editar(){}
 
 	public function listar($id_madre=0){
-		$sql = "SELECT * FROM _tareas ";
+		$sql = "SELECT * FROM _tareas ORDER BY id_madre ASC, nombre ASC ";
 		$resultados = $this->consulta($sql);
 
+		$salida="";
 		while($datos = $resultados->fetch_assoc()){
 			$id_tarea = $datos["id_tarea"];
+			
+
+
 			$id_madre = $datos["id_madre"];
 			$nombre = $datos["nombre"];
 			$descripcion = $datos["descripcion"];
 
-			print <<<fin
-				<br><a href="tarea_ver.php?id='$id_tarea'" title="$descripcion">$nombre</a>
+			$this->A_id_madre[$id_madre]=$nombre;
+			$this->opciones_id_madre.=<<<fin
+			<option value="$id_madre" title="$descripcion">$nombre</option>
 fin;
 
-		}
+			$salida.= <<<fin
+				<br><a href="tarea_ver.php?id=$id_tarea" title="$descripcion">$nombre</a>
+fin;
+
+
+		}//fin while
+		print $salida;
 
 	}
 
-	public function form(){
+	public function form($sustituciones=null){
 		//lee la plantilla del formulario
+		$this->plantillas["form"]= new plantilla("./plantillas/form_tarea.html", TRUE);
 
+		if(is_array($sustituciones)){
+			foreach($sustituciones as $clave => $valor){
+				$this->plantillas["form"]->reemplaza("#$clave#",$valor);
+			}
+		}
 
+		//toma su contenido
+		$html_form = $this->plantillas["form"]->volcar();
+		return($html_form);
+		
 	}
 }
 
