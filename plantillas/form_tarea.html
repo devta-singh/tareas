@@ -1,9 +1,13 @@
 
-	<form>
+	<form action="#destino#" method="post">
 		<!--<br>Tarea Madre: <input type="text" name="nombre" value="#nombre#"/>-->
 		<h3>Crear Tarea:</h3>
-		<br>Nombre: <input type="text" name="nombre" value="#nombre#"/>
-		<br>Descripción:<br><textarea name="descripcion">#descripcion#</textarea>
+		<br>Seleccione una tarea madre: <select name="id_madre" value="#nombre#" onfocus="this.select();"/>
+			
+			<option value="0">Es tarea principal (sin madre)</option>
+		#opciones_id_madre#</select>
+		<br>Nombre: <input type="text" name="nombre" value="#nombre#" onfocus="this.select();"/>
+		<br>Descripción:<br><textarea name="descripcion" onfocus="this.select();">#descripcion#</textarea>
 		<br><input type="submit" name="nombre" value="Añadir"/>
 	</form>
 	
